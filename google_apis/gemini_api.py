@@ -29,8 +29,9 @@ class GeminiAPI:
             return False
         try:
             genai.configure(api_key=api_key)
-            self._chat_model = genai.GenerativeModel("gemini-1.5-flash")
-            self._vision_model = genai.GenerativeModel("gemini-1.5-flash")
+            # Use gemini-2.0-flash
+            self._chat_model = genai.GenerativeModel("gemini-2.0-flash")
+            self._vision_model = genai.GenerativeModel("gemini-2.0-flash")
             self._configured = True
             log.info("✅ Gemini API ulandi.")
             return True
@@ -62,6 +63,34 @@ class GeminiAPI:
         except Exception as e:
             log.error(f"Gemini ask xatosi: {e}")
             return f"❌ Gemini xatosi: {e}"
+
+    async def agent_ask(self, question: str, system_prompt: str) -> str:
+        """Agent uchun JSON qaytaruvchi metod"""
+        if not self.is_available():
+            return '{"action": "error", "message": "Gemini API sozlanmagan"}'
+        
+        loop = asyncio.get_event_loop()
+        try:
+            prompt = f"{system_prompt}\n\nQuyidagi matn asosida qaror qabul qil va FAQAT aniq JSON formatida qaytar (Markdown backticks ishlatma, to'g'ridan-to'g'ri JSON qaytar):\n\nSavol/Buyruq: {question}"
+            
+            # Using generation_config for JSON if supported, else fallback to prompt instruction
+            try:
+                model = genai.GenerativeModel("gemini-2.0-flash", generation_config={"response_mime_type": "application/json"})
+                response = await loop.run_in_executor(None, lambda: model.generate_content(prompt))
+                return response.text
+            except Exception as e_json:
+                log.warning(f"JSON mime type error, falling back: {e_json}")
+                response = await loop.run_in_executor(None, lambda: self._chat_model.generate_content(prompt))
+                text = response.text
+                if text.startswith("```json"):
+                    text = text[7:]
+                if text.endswith("```"):
+                    text = text[:-3]
+                return text.strip()
+                
+        except Exception as e:
+            log.error(f"Gemini agent_ask xatosi: {e}")
+            return '{"action": "error", "message": "API xatosi"}'
 
     # ─── AUDIO → TEXT ─────────────────────────────────────────
 

@@ -72,6 +72,44 @@ class UserBotClient:
 
     # ─────────────────────── ACTIONS ───────────────────────
 
+    async def search_peer(self, name: str) -> str | None:
+        """Ism yoki username bo'yicha peer (entity) qidiradi va uning username yoki ID sini qaytaradi."""
+        try:
+            entity = await self.client.get_entity(name)
+            return getattr(entity, 'username', None) or str(entity.id)
+        except ValueError:
+            pass
+            
+        async for dialog in self.client.iter_dialogs():
+            title = dialog.name or ""
+            if name.lower() in title.lower():
+                entity = dialog.entity
+                return getattr(entity, 'username', None) or str(entity.id)
+        return None
+
+    async def execute_telethon_code(self, code: str) -> str:
+        """Agent tomonidan berilgan Telethon Python kodini dinamik ishga tushiradi."""
+        env = {
+            "client": self.client,
+            "asyncio": asyncio,
+            "os": os,
+            "log": log,
+            "result": None,
+            "functions": __import__('telethon.tl.functions', fromlist=[''])
+        }
+        
+        wrapper = f"async def _dynamic_run():\n    global result\n"
+        for line in code.split('\n'):
+            wrapper += f"    {line}\n"
+            
+        try:
+            exec(wrapper, env)
+            await env["_dynamic_run"]()
+            return str(env.get("result", "Muvaffaqiyatli bajarildi."))
+        except Exception as e:
+            log.error(f"Dinamik kod xatosi: {e}")
+            return f"Xatolik yuz berdi: {e}"
+
     async def send_message(self, chat, text: str):
         entity = await self.client.get_entity(chat)
         await self.client.send_message(entity, text)

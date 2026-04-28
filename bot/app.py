@@ -11,7 +11,7 @@ from userbot.client import UserBotClient
 from scheduler.tasks import Scheduler
 
 from bot.middleware import AuthMiddleware
-from bot.handlers import system, messaging, groups, ai_bridge, google_handler, schedule_handler, blacklist_handler
+from bot.handlers import system, messaging, groups, ai_bridge, google_handler, schedule_handler, blacklist_handler, agent_handler
 
 log = logging.getLogger("bot")
 
@@ -39,6 +39,7 @@ async def start_bot(userbot: UserBotClient, db: Database, scheduler: Scheduler):
         google_handler.router,
         schedule_handler.router,
         blacklist_handler.router,
+        agent_handler.router,
     ]:
         dp.include_router(router)
 
