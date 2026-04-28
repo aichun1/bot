@@ -1,0 +1,11 @@
+aiogram==3.7.0
+telethon==1.36.0
+aiosqlite==0.20.0
+apscheduler==3.10.4
+python-dotenv==1.0.1
+
+# Google APIs (ixtiyoriy, lekin tavsiya etiladi)
+google-api-python-client==2.131.0
+google-auth==2.29.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
