@@ -23,9 +23,8 @@ class Config:
     GOOGLE_CALENDAR_ID: str = os.getenv("GOOGLE_CALENDAR_ID", "primary")
     GMAIL_USER: str = os.getenv("GMAIL_USER", "")
 
-    # AI Telegram Botlari (username)
-    WHISPER_BOT: str = os.getenv("WHISPER_BOT", "@whisperrobot")
-    AI_BOT: str = os.getenv("AI_BOT", "@ChatGPTelegramBot")
+    # Gemini API (aistudio.google.com dan bepul oling)
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
 
     # Railway
     PORT: int = int(os.getenv("PORT", "8080"))

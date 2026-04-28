@@ -17,6 +17,14 @@ async def main():
     db = Database()
     await db.init()
 
+    # Gemini API sozlash
+    if cfg.GEMINI_API_KEY:
+        from google_apis.gemini_api import gemini
+        gemini.setup(cfg.GEMINI_API_KEY)
+        log.info("✅ Gemini API ulandi.")
+    else:
+        log.warning("⚠️ GEMINI_API_KEY yo'q — AI funksiyalar ishlamaydi.")
+
     userbot = UserBotClient(db)
     await userbot.start()
 
